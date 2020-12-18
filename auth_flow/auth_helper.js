@@ -35,6 +35,8 @@ function scheduleRefresh(seconds) {
             scheduleRefresh(parseInt(data.body.expires_in));
         }, function(err) {
             console.log("\n!!!!!! COULD NOT REFRESH ACCESS TOKEN !!!!!!\n");
+            console.log(err);
+            scheduleRefresh(parseInt(data.body.expires_in));
         })
     }, seconds * 1000 / 2);
 
