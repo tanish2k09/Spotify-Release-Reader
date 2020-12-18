@@ -58,7 +58,7 @@ function pumpTracks(rr, newPlaylist) {
     client.getPlaylistTracks(rr.id)
     .then(function (data) {
         if (data == null || data.statusCode != 200) {
-            console.log(`${Date.now().toISOString()} : Something went wrong reading tracks from RR`);
+            console.log(`${new Date().toISOString()} : Something went wrong reading tracks from RR`);
             return;
         }
 
@@ -67,7 +67,8 @@ function pumpTracks(rr, newPlaylist) {
             collection.push(trackInfo.track.uri);
         }
 
-        client.addTracksToPlaylist(newPlaylist.id, collection);
+        client.addTracksToPlaylist(newPlaylist.id, collection)
+        .then(() => {console.log(`${newPlaylist.name} cloning successful`)});
     });
 }
 
@@ -86,7 +87,7 @@ function cloneReleaseRadar(rr) {
     )
     .then(function (newPlaylist) {
         if (newPlaylist == null || newPlaylist.statusCode != 201) {
-            console.log(`${Date.now().toISOString()} : Something went wrong while creating playlist`);
+            console.log(`${new Date().toISOString()} : Something went wrong while creating playlist`);
             return;
         }
 
@@ -98,7 +99,7 @@ function executeCommonCopy(userData) {
     getPlaylistsFromUser(userData)
     .then(function (playlists) {
         if (checkDuplicate(playlists) != null) {
-            console.log(`${Date.now().toISOString()} : Playlist already exists, skipping`);
+            console.log(`${new Date().toISOString()} : Playlist already exists, skipping`);
             return;
         }
 
@@ -106,14 +107,22 @@ function executeCommonCopy(userData) {
     })
 }
 
-function executeManualCopy() {
+function shouldExecuteManual() {
     const friday = 5; // Day of the week
     var date = new Date();
 
-    // If today isn't Friday, try to clone this week's running Release Radar as well.
-    if (date.getDay() != friday) {
+    // False if it's Friday and earlier than 4AM right now
+    return (date.getDay() != friday) || (date.getHours() > 4) || (date.getHours() == 4 && date.getMinutes() > 0);
+}
+
+function executeManualCopy() {
+    if (shouldExecuteManual()) {
+        console.log("\nExecuting manual copy based on time\n");
         executeSafeCopy();
+        return;
     }
+
+    console.log("\nSkipping manual copy based on time\n");
 }
 
 function executeSafeCopy() {
