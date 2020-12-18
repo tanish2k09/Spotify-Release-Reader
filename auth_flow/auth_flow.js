@@ -54,6 +54,7 @@ function succeed(result) {
     result.writeHead(200, { "Content-Type": "text/plain" });
     result.write("Authentication complete\n\nYou may close this tab now.");
     result.end();
+    console.log("\nAuthentication/Refresh successful");
 }
 
 app.get(`${process.env.SUBPATH}/login`, function (req, res) {
@@ -136,4 +137,5 @@ console.log('Listening on 8888');
 app.listen(8888);
 
 console.log('\nAuthentication URL:');
+console.log(`http://localhost:${process.env.PORT}${process.env.SUBPATH}/login`);
 open(`http://localhost:${process.env.PORT}${process.env.SUBPATH}/login`);

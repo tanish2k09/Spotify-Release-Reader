@@ -8,7 +8,12 @@ const client = new Client({
     redirectUri: `http://localhost:${process.env.PORT}${process.env.SUBPATH}/auth/callback`
 });
 
-const scopes = ['user-read-private', 'user-read-email'];
+const scopes = [
+    'user-read-private',
+    'playlist-read-private',
+    'playlist-read-collaborative',
+    'playlist-modify-private'
+];
 
 function auth_url(state) {
     return client.createAuthorizeURL(scopes, state);
