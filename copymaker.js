@@ -98,7 +98,7 @@ function executeCommonCopy(userData) {
     getPlaylistsFromUser(userData)
     .then(function (playlists) {
         if (checkDuplicate(playlists) != null) {
-            console.log(`${Date.now()} : Playlist already exists, skipping`);
+            console.log(`${Date.now().toISOString()} : Playlist already exists, skipping`);
             return;
         }
 
