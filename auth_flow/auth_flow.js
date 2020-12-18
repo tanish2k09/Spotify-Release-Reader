@@ -92,24 +92,8 @@ app.get(`${process.env.SUBPATH}/auth/callback`, function (req, res) {
 
         request.post(authOptions, function (error, response, body) {
             if (!error && response.statusCode === 200) {
-
-                var access_token = body.access_token,
-                    refresh_token = body.refresh_token;
-
-                console.log(`Access token: ${access_token}`);
-                console.log(`Refresh token: ${refresh_token}`);
-
-                var options = {
-                    url: 'https://api.spotify.com/v1/me',
-                    headers: { 'Authorization': 'Bearer ' + access_token },
-                    json: true
-                };
-
-                // use the access token to access the Spotify Web API
-                request.get(options, function (error, response, body) {
-                    console.log(body);
-                });
-
+                helper.client.setAccessToken(body.access_token);
+                helper.client.setRefreshToken(body.refresh_token);
                 succeed(res);
             } else {
                 res.redirect('/#' +
@@ -137,10 +121,13 @@ app.get('/srr/refresh_token', function (req, res) {
 
     request.post(authOptions, function (error, response, body) {
         if (!error && response.statusCode === 200) {
-            var access_token = body.access_token;
-            res.send({
-                'access_token': access_token
-            });
+            helper.client.setAccessToken(body.access_token);
+            succeed(res);
+        } else {
+            res.redirect('/#' +
+                querystring.stringify({
+                    error: 'invalid_refresh_token'
+                }));
         }
     });
 });
