@@ -106,6 +106,16 @@ function executeCommonCopy(userData) {
     })
 }
 
+function executeManualCopy() {
+    const friday = 5; // Day of the week
+    var date = new Date();
+
+    // If today isn't Friday, try to clone this week's running Release Radar as well.
+    if (date.getDay() != friday) {
+        executeSafeCopy();
+    }
+}
+
 function executeSafeCopy() {
     if (user != null) {
         executeCommonCopy(user);
@@ -122,4 +132,4 @@ function executeSafeCopy() {
     .then(executeCommonCopy);
 }
 
-module.exports = { executeSafeCopy };
+module.exports = { executeSafeCopy, executeManualCopy };
