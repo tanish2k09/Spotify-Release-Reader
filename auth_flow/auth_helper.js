@@ -19,4 +19,26 @@ function auth_url(state) {
     return client.createAuthorizeURL(scopes, state);
 }
 
-module.exports = { client, auth_url };
+function scheduleRefresh(seconds) {
+    console.log(`\n!! Token expires in ${seconds} seconds !!`);
+
+    setTimeout(() => {
+        client.refreshAccessToken().then(function(data) {
+            client.setAccessToken(data.body.access_token);
+            console.log("!! Access Token refreshed !!");
+
+            if (data.body.refresh_token != null) {
+                client.setRefreshToken(data.body.refresh_token);
+                console.log("!! Refresh Token refreshed !!");
+            }
+
+            scheduleRefresh(parseInt(data.body.expires_in));
+        }, function(err) {
+            console.log("\n!!!!!! COULD NOT REFRESH ACCESS TOKEN !!!!!!\n");
+        })
+    }, seconds * 1000 / 2);
+
+    console.log(`!! Token refreshes in ${seconds / 2} seconds !!`);
+}
+
+module.exports = { client, auth_url, scheduleRefresh };

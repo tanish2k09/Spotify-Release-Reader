@@ -95,6 +95,7 @@ app.get(`${process.env.SUBPATH}/auth/callback`, function (req, res) {
             if (!error && response.statusCode === 200) {
                 helper.client.setAccessToken(body.access_token);
                 helper.client.setRefreshToken(body.refresh_token);
+                helper.scheduleRefresh(parseInt(body.expires_in));
                 succeed(res);
             } else {
                 res.redirect('/#' +
