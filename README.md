@@ -3,14 +3,14 @@
 A simple Spotify app to clone your weekly Release Radar to your playlists
 
 ## Usage:
----
+
 1) Install the required packages via `npm install`
 2) Create a `.env` file in the project root folder as described in next section
 2) Execute the service via `node service.js`
 3) Approve the authorization request from a browser
 
 ## The .env file:
----
+
 This file is used to store credentials outside of source code.
 These are the few things required:
 
