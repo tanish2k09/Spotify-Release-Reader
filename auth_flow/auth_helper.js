@@ -19,6 +19,8 @@ function auth_url(state) {
     return client.createAuthorizeURL(scopes, state);
 }
 
+var refreshFailures = 0;
+
 function scheduleRefresh(seconds) {
     console.log(`\n!! Token expires in ${seconds} seconds !!`);
 
@@ -32,11 +34,19 @@ function scheduleRefresh(seconds) {
                 console.log("!! Refresh Token refreshed !!");
             }
 
+            refreshFailures = 0;
             scheduleRefresh(parseInt(data.body.expires_in));
         }, function(err) {
             console.log("\n!!!!!! COULD NOT REFRESH ACCESS TOKEN !!!!!!\n");
             console.log(err);
-            scheduleRefresh(parseInt(data.body.expires_in));
+
+            refreshFailures++;
+
+            if (refreshFailures < 3) {
+                scheduleRefresh(parseInt(data.body.expires_in));
+            } else {
+                process.exit(1);
+            }
         })
     }, seconds * 1000 / 2);
 
