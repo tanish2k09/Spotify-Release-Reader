@@ -33,10 +33,24 @@ function getReleaseRadarFromPlaylists(playlists) {
     return releaseRadar;
 }
 
-function checkDuplicate(playlists) {
-    var date = new Date().toISOString().replace(/T.*/, '');
+function getFridayDate() {
+    var fridayDate = new Date();
 
-    return getMatchingPlaylist(playlists, "Release Radar : " + date, user.id);
+    /* Calculation mapping
+     * 5 -> 0
+     * 6 -> -1
+     * 0 -> -2
+     * 1 -> -3
+     * 2 -> -4
+     * 3 -> -5
+     * 4 -> -6
+     */
+    fridayDate.setDate(((fridayDate.getday() + 2) % 7) * (-1));
+    return fridayDate.toISOString().replace(/T.*/, '');
+}
+
+function checkDuplicate(playlists) {
+    return getMatchingPlaylist(playlists, "Release Radar : " + getFridayDate(), user.id);
 }
 
 function getMatchingPlaylist(playlists, name, owner) {
@@ -77,9 +91,8 @@ function cloneReleaseRadar(rr) {
         return;
     }
 
-    var date = new Date().toISOString().replace(/T.*/, '');
     client.createPlaylist(
-        `Release Radar : ${date}`,
+        `Release Radar : ${getFridayDate()}`,
         {
             'description': 'Release Radar clone playlist - created using Spotify-Release-Reader',
             'public': false
@@ -112,7 +125,7 @@ function shouldExecuteManual() {
     var date = new Date();
 
     // False if it's Friday and earlier than 4AM right now
-    return (date.getDay() != friday) || (date.getHours() > 4) || (date.getHours() == 4 && date.getMinutes() > 0);
+    return (date.getDay() != friday) || (date.getHours() >= 4);
 }
 
 function executeManualCopy() {
