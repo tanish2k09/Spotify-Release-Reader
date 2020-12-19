@@ -45,7 +45,7 @@ function getFridayDate() {
      * 3 -> -5
      * 4 -> -6
      */
-    fridayDate.setDate(((fridayDate.getday() + 2) % 7) * (-1));
+    fridayDate.setDate(fridayDate.getDate() + (((fridayDate.getDay() + 2) % 7) * (-1)));
     return fridayDate.toISOString().replace(/T.*/, '');
 }
 
