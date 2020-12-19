@@ -51,12 +51,19 @@ function genCookie(res) {
 }
 
 function succeed(result) {
+    if (process.env.CLOSETAB == "true") {
+        result.send("<script>window.close()</script>");
+        result.end();
+        return;
+    }
+
     result.writeHead(200, { "Content-Type": "text/plain" });
     result.write(" ---- SPOTIFY RELEASE READER ---- \n");
     result.write("|                                |\n");
     result.write("|    Authentication complete!    |\n");
     result.write("|   You may close this tab now   |\n");
     result.write(" -------------------------------- ");
+
     result.end();
     console.log("\nAuthentication/Refresh successful");
 }
