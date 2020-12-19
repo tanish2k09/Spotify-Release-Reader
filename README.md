@@ -19,5 +19,6 @@ CLIENT_ID=your_client_id_here
 CLIENT_SECRET=your_client_secret_here
 PORT=8888
 SUBPATH=/srr
+BROWSER=google chrome
 ```
 It is recommended you leave the PORT and SUBPATH fields unchanged. You must get the client ID and client secret from Spotify's developer portal by creating an app.

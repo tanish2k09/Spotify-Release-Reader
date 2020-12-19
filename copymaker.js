@@ -50,7 +50,7 @@ function getFridayDate() {
 }
 
 function checkDuplicate(playlists) {
-    return getMatchingPlaylist(playlists, "Release Radar : " + getFridayDate(), user.id);
+    return getMatchingPlaylist(playlists, `Release Radar : ${getFridayDate()}`, user.id);
 }
 
 function getMatchingPlaylist(playlists, name, owner) {

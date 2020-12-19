@@ -52,7 +52,11 @@ function genCookie(res) {
 
 function succeed(result) {
     result.writeHead(200, { "Content-Type": "text/plain" });
-    result.write("Authentication complete\n\nYou may close this tab now.");
+    result.write(" ---- SPOTIFY RELEASE READER ---- \n");
+    result.write("|                                |\n");
+    result.write("|    Authentication complete!    |\n");
+    result.write("|   You may close this tab now   |\n");
+    result.write(" -------------------------------- ");
     result.end();
     console.log("\nAuthentication/Refresh successful");
 }
@@ -139,4 +143,6 @@ app.listen(8888);
 
 console.log('\nAuthentication URL:');
 console.log(`http://localhost:${process.env.PORT}${process.env.SUBPATH}/login\n`);
-open(`http://localhost:${process.env.PORT}${process.env.SUBPATH}/login`);
+
+
+open(`http://localhost:${process.env.PORT}${process.env.SUBPATH}/login`, {app: [process.env.BROWSER]});
