@@ -138,5 +138,5 @@ console.log('Listening on 8888');
 app.listen(8888);
 
 console.log('\nAuthentication URL:');
-console.log(`http://localhost:${process.env.PORT}${process.env.SUBPATH}/login`);
+console.log(`http://localhost:${process.env.PORT}${process.env.SUBPATH}/login\n`);
 open(`http://localhost:${process.env.PORT}${process.env.SUBPATH}/login`);

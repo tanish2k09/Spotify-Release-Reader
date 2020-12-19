@@ -13,6 +13,7 @@ const service = new CronJob(pattern, executeSafeCopy);
 // A small QoL bonus :)
 const waiting = setInterval(function () {
     if (helper.client.getAccessToken() == null) {
+        console.log('Waiting for auth...');
         return;
     }
 
