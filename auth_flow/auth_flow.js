@@ -111,33 +111,6 @@ app.get(`${process.env.SUBPATH}/auth/callback`, function (req, res) {
     }
 });
 
-app.get('/srr/refresh_token', function (req, res) {
-
-    // requesting access token from refresh token
-    var refresh_token = req.query.refresh_token;
-    var authOptions = {
-        url: 'https://accounts.spotify.com/api/token',
-        headers: { 'Authorization': 'Basic ' + (new Buffer.from(client_id + ':' + client_secret).toString('base64')) },
-        form: {
-            grant_type: 'refresh_token',
-            refresh_token: refresh_token
-        },
-        json: true
-    };
-
-    request.post(authOptions, function (error, response, body) {
-        if (!error && response.statusCode === 200) {
-            helper.client.setAccessToken(body.access_token);
-            succeed(res);
-        } else {
-            res.redirect('/#' +
-                querystring.stringify({
-                    error: 'invalid_refresh_token'
-                }));
-        }
-    });
-});
-
 console.log('Listening on 8888');
 app.listen(8888);
 
