@@ -12,7 +12,7 @@ var request = require('request'); // "Request" library
 var cors = require('cors');
 var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
-var open = require('opn');
+var open = require('open');
 
 const helper = require('./auth_helper');
 
@@ -125,4 +125,4 @@ console.log('\nAuthentication URL:');
 console.log(`http://localhost:${process.env.PORT}${process.env.SUBPATH}/login\n`);
 
 
-open(`http://localhost:${process.env.PORT}${process.env.SUBPATH}/login`, {app: [process.env.BROWSER]});
+open(`http://localhost:${process.env.PORT}${process.env.SUBPATH}/login`, {app: {name: [process.env.BROWSER]}});
