@@ -1,3 +1,6 @@
+// TODO: Handle pagination of response of playlists using limit and offset
+// Would need to edit the search/find for duplicate and RR playlist too
+
 const client = require("./auth_flow/auth_helper").client;
 
 var releaseRadar = null;
@@ -45,7 +48,17 @@ function getFridayDate() {
      * 3 -> -5
      * 4 -> -6
      */
-    fridayDate.setDate(fridayDate.getDate() + (((fridayDate.getDay() + 2) % 7) * (-1)));
+    console.log(`Current date is reported as ${fridayDate.getUTCDate()}`);
+    console.log(`Current day is reported as ${fridayDate.getUTCDay()}`);
+
+    // Calculate offset for last friday according to the mapping in above comment
+    const offset = (((fridayDate.getUTCDay() + 2) % 7) * (-1));
+    console.log(`Calculated day offset is ${offset}`)
+
+    const newDate = fridayDate.getUTCDate() + offset;
+    console.log(`Calculated new date is ${newDate}`);
+
+    fridayDate.setUTCDate(newDate);
     return fridayDate.toISOString().replace(/T.*/, '');
 }
 
@@ -100,7 +113,7 @@ function cloneReleaseRadar(rr) {
     )
     .then(function (newPlaylist) {
         if (newPlaylist == null || newPlaylist.statusCode != 201) {
-            console.log(`${new Date().toISOString()} : Something went wrong while creating playlist`);
+            console.log(`${new Date().toISOString()} : Something went wrong while creating playlist for ${getFridayDate()}`);
             return;
         }
 
@@ -109,10 +122,15 @@ function cloneReleaseRadar(rr) {
 }
 
 function executeCommonCopy(userData) {
+    if (userData == null) {
+        console.log("User Data not received, doing nothing for now.");
+        return;
+    }
+
     getPlaylistsFromUser(userData)
     .then(function (playlists) {
         if (checkDuplicate(playlists) != null) {
-            console.log(`${new Date().toISOString()} : Playlist already exists, skipping`);
+            console.log(`${new Date().toISOString()} : Playlist already exists for ${getFridayDate()}, skipping`);
             return;
         }
 
@@ -125,7 +143,7 @@ function shouldExecuteManual() {
     var date = new Date();
 
     // False if it's Friday and earlier than 4AM right now
-    return (date.getDay() != friday) || (date.getHours() >= 4);
+    return (date.getUTCDay() != friday) || (date.getUTCHours() >= 4);
 }
 
 function executeManualCopy() {
