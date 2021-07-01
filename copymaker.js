@@ -48,15 +48,9 @@ function getFridayDate() {
      * 3 -> -5
      * 4 -> -6
      */
-    console.log(`Current date is reported as ${fridayDate.getUTCDate()}`);
-    console.log(`Current day is reported as ${fridayDate.getUTCDay()}`);
-
     // Calculate offset for last friday according to the mapping in above comment
     const offset = (((fridayDate.getUTCDay() + 2) % 7) * (-1));
-    console.log(`Calculated day offset is ${offset}`)
-
     const newDate = fridayDate.getUTCDate() + offset;
-    console.log(`Calculated new date is ${newDate}`);
 
     fridayDate.setUTCDate(newDate);
     return fridayDate.toISOString().replace(/T.*/, '');
