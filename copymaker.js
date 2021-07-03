@@ -14,7 +14,7 @@ function showGuide() {
 function getPlaylistsFromUser(userData) {
     if (userData == null || userData.statusCode != 200) {
         console.log("Received bad profile on getMe()");
-        return null;
+        return Promise.reject('User data is bad');
       }
 
       return client.getUserPlaylists(userData.body.id);
