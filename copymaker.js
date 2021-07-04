@@ -2,80 +2,25 @@
 // Would need to edit the search/find for duplicate and RR playlist too
 
 const client = require("./auth_flow/auth_helper").client;
+const PlaylistDescriptor = require("./playlist_descriptor").PlaylistDescriptor;
+const TimeHelper = require("./time_helper");
+const PlaylistHelper = require("./playlist_helper");
 
-var releaseRadar = null;
 var user = null;
-
-function showGuide() {
-    console.log("\n!!! Release Radar playlist not found !!!");
-    console.log("Make sure to add your Release Radar playlist to your library!");
-}
-
-function getPlaylistsFromUser(userData) {
-    if (userData == null || userData.statusCode != 200) {
-        console.log("Received bad profile on getMe()");
-        return Promise.reject('User data is bad');
-      }
-
-      return client.getUserPlaylists(userData.body.id);
-}
-
-function getReleaseRadarFromPlaylists(playlists) {
-    releaseRadar = getMatchingPlaylist(playlists, "Release Radar", "spotify");
-
-    if (releaseRadar == null) {
-        showGuide();
-        return null;
-    }
-
-    console.log("\n---------------");
-    console.log("Found Release Radar playlist:");
-    console.log(releaseRadar);
-    console.log("---------------\n");
-
-    return releaseRadar;
-}
-
-function getFridayDate() {
-    var fridayDate = new Date();
-
-    /* Calculation mapping
-     * 5 -> 0
-     * 6 -> -1
-     * 0 -> -2
-     * 1 -> -3
-     * 2 -> -4
-     * 3 -> -5
-     * 4 -> -6
-     */
-    // Calculate offset for last friday according to the mapping in above comment
-    const offset = (((fridayDate.getUTCDay() + 2) % 7) * (-1));
-    const newDate = fridayDate.getUTCDate() + offset;
-
-    fridayDate.setUTCDate(newDate);
-    return fridayDate.toISOString().replace(/T.*/, '');
-}
-
-function checkDuplicate(playlists) {
-    return getMatchingPlaylist(playlists, `Release Radar : ${getFridayDate()}`, user.id);
-}
-
-function getMatchingPlaylist(playlists, name, owner) {
-    if (playlists == null || playlists.statusCode != 200) {
-        console.log("Received bad playlists");
-        return null;
-      }
-
-      for (playlist of playlists.body.items) {
-        if (playlist.name == name && playlist.owner.id == owner) {
-          return playlist;
-        }
-      }
-
-      return null;
-}
+var playlistDescriptors = new Set();
+playlistDescriptors.add(
+    new PlaylistDescriptor(
+        PlaylistHelper.isReleaseRadarTarget,
+        PlaylistHelper.isReleaseRadarSource,
+        releaseRadarTrigger
+    ));
 
 function pumpTracks(rr, newPlaylist) {
+    if (rr == null) {
+        console.log("Returning from pumper, rr was null");
+        return;
+    }
+
     client.getPlaylistTracks(rr.id)
     .then(function (data) {
         if (data == null || data.statusCode != 200) {
@@ -88,60 +33,54 @@ function pumpTracks(rr, newPlaylist) {
             collection.push(trackInfo.track.uri);
         }
 
-        client.addTracksToPlaylist(newPlaylist.id, collection)
-        .then(() => {console.log(`${newPlaylist.name} cloning successful`)});
+        client.addTracksToPlaylist(newPlaylist.body.id, collection)
+        .then(() => {console.log(`${newPlaylist.body.name} cloning successful`)});
     });
 }
 
-function cloneReleaseRadar(rr) {
-    if (rr == null) {
-        return;
-    }
+async function releaseRadarTrigger(rr) {
+    releaseRadar = rr;
 
-    client.createPlaylist(
-        `Release Radar : ${getFridayDate()}`,
+    let newPlaylist = await createReleaseRadarClone()
+    pumpTracks(rr, newPlaylist);
+}
+
+async function createReleaseRadarClone() {
+    let newPlaylist = await client.createPlaylist(
+        PlaylistHelper.getReleaseRadarTargetName(),
         {
             'description': 'Release Radar clone playlist - created using Spotify-Release-Reader',
             'public': false
         }
-    )
-    .then(function (newPlaylist) {
-        if (newPlaylist == null || newPlaylist.statusCode != 201) {
-            console.log(`${new Date().toISOString()} : Something went wrong while creating playlist for ${getFridayDate()}`);
-            return;
-        }
+    );
+    
+    if (newPlaylist == null || (newPlaylist.statusCode != 200 && newPlaylist.statusCode != 201)) {
+        console.log(`${new Date().toISOString()} : Something went wrong while creating playlist for ${TimeHelper.getFridayDate()}`);
+        return null;
+    }
 
-        pumpTracks(rr, newPlaylist.body);
-    });
+    console.log(`Release Radar clone created: ${newPlaylist.body.name}`);
+    return newPlaylist;
 }
 
-function executeCommonCopy(userData) {
-    if (userData == null) {
-        console.log("User Data not received, doing nothing for now.");
+async function executeCommonCopy(userData) {
+    if (userData == null || userData.statusCode != 200) {
+        console.log("User Data received is bad, doing nothing for now.");
         return;
     }
 
-    getPlaylistsFromUser(userData)
-    .then(function (playlists) {
-        if (checkDuplicate(playlists) != null) {
-            console.log(`${new Date().toISOString()} : Playlist already exists for ${getFridayDate()}, skipping`);
-            return;
-        }
+    console.log("Executing common copy");
 
-        cloneReleaseRadar(getReleaseRadarFromPlaylists(playlists));
-    })
-}
+    // TODO: Figure out copying flow
+    let activeDescriptors = await PlaylistHelper.getMatchedPlaylists(playlistDescriptors, userData, client);
 
-function shouldExecuteManual() {
-    const friday = 5; // Day of the week
-    var date = new Date();
-
-    // False if it's Friday and earlier than 4AM right now
-    return (date.getUTCDay() != friday) || (date.getUTCHours() >= 4);
+    activeDescriptors.forEach(function (descriptor) {
+        descriptor.trigger(descriptor.sourceID);
+    });
 }
 
 function executeManualCopy() {
-    if (shouldExecuteManual()) {
+    if (TimeHelper.shouldExecuteManual()) {
         console.log("\nExecuting manual copy based on time\n");
         executeSafeCopy();
         return;
