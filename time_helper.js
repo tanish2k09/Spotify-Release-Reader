@@ -11,7 +11,7 @@ function getFridayDate() {
      * 4 -> -6
      */
     // Calculate offset for last friday according to the mapping in above comment
-    const offset = (((fridayDate.getUTCDay() + 3) % 7) * (-1));
+    const offset = (((fridayDate.getUTCDay() + 2) % 7) * (-1));
     const newDate = fridayDate.getUTCDate() + offset;
 
     fridayDate.setUTCDate(newDate);
