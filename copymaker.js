@@ -30,7 +30,9 @@ function pumpTracks(rr, newPlaylist) {
 
         var collection = []
         for (trackInfo of data.body.items) {
-            collection.push(trackInfo.track.uri);
+            if (trackInfo.track != null) {
+                collection.push(trackInfo.track.uri);
+            }
         }
 
         client.addTracksToPlaylist(newPlaylist.body.id, collection)
