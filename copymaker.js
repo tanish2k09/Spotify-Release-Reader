@@ -70,7 +70,6 @@ async function executeCommonCopy(userData) {
 
     console.log("Executing common copy");
 
-    // TODO: Figure out copying flow
     let activeDescriptors = await PlaylistHelper.getMatchedPlaylists(playlistDescriptors, userData, client);
 
     activeDescriptors.forEach(function (descriptor) {
