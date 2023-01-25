@@ -30,7 +30,7 @@ class PaginatedPlaylist {
             return;
         }
 
-        await this.#fetchPlaylists(this.playlists.body.offset + 50);
+        await this.#fetchPlaylists(this.playlists.body.offset + pageLimit);
     }
 }
 
