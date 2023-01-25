@@ -1,6 +1,3 @@
-// TODO: Handle pagination of response of playlists using limit and offset
-// Would need to edit the search/find for duplicate and RR playlist too
-
 const client = require("./auth_flow/auth_helper").client;
 const PlaylistDescriptor = require("./playlist_descriptor").PlaylistDescriptor;
 const TimeHelper = require("./time_helper");
